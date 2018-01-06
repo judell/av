@@ -1,0 +1,42 @@
+body { font-family:verdana; margin: .25in }
+
+button { margin-left:8px; margin-right:8px; padding:1px; }
+
+h1 { font-size:16pt; margin-left:6px }
+
+table { margin:auto; border-spacing:4px; background-color:#f2f2f2 }
+
+table .min-sec-controls { border-spacing:2px }
+
+#permalink { margin-top:20px; text-align:center }
+
+//#permalinkText { word-wrap:break-word; text-align:center }
+
+.arrow { font-size:x-large; cursor:pointer }
+
+.capture { font-size:smaller; text-align:center }
+
+.end-controls .arrow {  }
+
+.label { font-weight:bold }
+
+//.left-arrow { margin-left:6px; margin-right:4px;}
+
+.locked { text-align:center }
+
+.play-clip { text-align:center; margin-bottom:20px }td input { width:24px }
+
+//.right-arrow { margin-left:4px;}
+
+//.min-or-sec { width:30px; }
+
+.permalink { font-size:smaller }
+
+.play-clip-controls-container { }
+
+.start-controls .arrow {  }
+
+.unit { font-family:courier }
+
+.url-label { margin-left:10px; margin-top:20px }
+.

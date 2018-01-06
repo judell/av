@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>HTML5 Audio Clipper</title>
+<link rel="stylesheet" href="av.css">
+</head>
+
+<body>
+
+<h1>HTML5 Audio Clipper</h1>
+
+<div id="url-label">
+</div>
+
+<div id="container">
+<audio id="player" controls="controls">
+<source id="source" src="" />
+</audio>
+</div>
+
+<div class="play-clip">
+
+<button onclick="javascript:playCurrentParams()">play clip</button>
+
+</div>			 
+
+<div id="params"></div>
+
+<div id="permalink"></div>
+
+<script>
+var mode = 'audio';
+</script>
+
+<script src="av.js"></script>
+
+</body>
+</html>
+
