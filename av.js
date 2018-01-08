@@ -333,14 +333,17 @@ function updatePermalink() {
         startlocked,
         endlocked } = getFieldValues();
 
-  var href = `${mode}.html?url=${url}&startmin=${startmin}&startsec=${startsec}&endmin=${endmin}&endsec=${endsec}`;
+  var editorHref = `${mode}.html?url=${url}&startmin=${startmin}&startsec=${startsec}&endmin=${endmin}&endsec=${endsec}`;
 
-//  var _href = `${mode}.html?url=<b>${url}</b>&startmin=<b>${startmin}</b>&startsec=<b>${startsec}</b>&endmin=<b>${endmin}</b>&endsec=<b>${endsec}</b>`;
-  
+  document.getElementById('permalinkHref').href = editorHref;
 
-  document.getElementById('permalinkHref').href = href;
+  var playbackStart = minutesAndSecondsToSeconds(startmin, startsec);
+  var playbackEnd = minutesAndSecondsToSeconds(endmin, endsec);
 
-//  document.getElementById('permalinkText').innerHTML = _href;
+  var playbackHref = `${url}#t=${playbackStart},${playbackEnd}`;
+
+  document.getElementById('playbackHref').href = playbackHref;
+
 }
 
 function secondsToMinutesAndSeconds(seconds) {
@@ -562,9 +565,11 @@ var params = `
 var permalink = `
 <div class="permalink">
 <p>
-<a id="permalinkHref" href="">link</a> to these settings
+<a id="permalinkHref" href="">link</a> to av editor with these settings
 </p>
-<!--<p id="permalinkText"></p>-->
+<p>
+<a id="playbackHref" href="">link</a> to player with these settings
+</p>
 </div>
 `;
 
