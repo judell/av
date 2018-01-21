@@ -160,8 +160,6 @@ function startLockChange() {
   if ( ! startCheckbox.checked ) {
     seekStart();
   }
-
-//  maybeShowPlayButton();
 }
 
 function endLockChange() {
@@ -201,7 +199,6 @@ function radioChange() {
     seekEnd();
   }
 
-//  maybeShowPlayButton();
 }
 
 function getFieldValue(id, value) {
@@ -302,27 +299,6 @@ function playOutro() {
   play(url, start.min, start.sec, endmin, endsec, true);
 }
 
-function maybeShowPlayButton() {
-
-  if ( isStartMode() ) {
-      if ( isStartLocked() ) {
-        playIntroButton.style.visibility = 'visible';
-        playIntroButton.disabled = false;
-      }
-      else {
-        playIntroButton.disabled = true;
-      }
-  }
-
-  if ( isEndMode() ) {
-      if ( isEndLocked() ) {
-        playOutroButton.disabled = false;
-      }
-      else {
-        playOutroButton.disabled = true;
-      }
-  }
-}
 
 function updatePermalink() {
   var { url,
@@ -361,22 +337,26 @@ function parseNumber (value) {
   return ( value === '' ) ? 0 : parseInt(value);
 } 
 
+function maybePause(player, endmin, endsec) {
+  player.ontimeupdate = function() {
+    if ( player.currentTime > minutesAndSecondsToSeconds(endmin, endsec) ) {
+      player.pause();
+    }
+  }
+}
+
 function play(url, startmin, startsec, endmin, endsec, isIntro) {
-  var container = document.getElementById('container');
-  player = document.getElementById('player');
-  player.remove();
-  player = document.createElement(`${mode}`);
-  player.id = "player";
-  player.controls = "controls";
-  player.autoplay = "autoplay";
+
+  var player = document.getElementById('player');
   player.style["width"] = "100%";
 
-  var source = source = document.createElement('source');
+  var source = document.getElementById('source');
+  source.remove();
+
+  source = document.createElement('source');
   source.id = 'source';
   source.src = url;
-
   player.appendChild(source);
-  container.appendChild(player);
 
   var t = minutesAndSecondsToSeconds(startmin, startsec);
   player.currentTime = t;
@@ -384,18 +364,12 @@ function play(url, startmin, startsec, endmin, endsec, isIntro) {
   player.volume = playerVolume;  
 
   player.onseeked = function () {
-
     adjustFields();
     maybePause(player, endmin, endsec);
+    player.play();
   }
-}
 
-function maybePause(player, endmin, endsec) {
-  player.ontimeupdate = function() {
-    if ( player.currentTime > minutesAndSecondsToSeconds(endmin, endsec) ) {
-      player.pause();
-    }
-  }
+  player.play();
 }
 
 function adjustFields() {
@@ -644,20 +618,14 @@ setInterval( function() {
   }
 
   adjustFields();
-  maybePausePlayer();
 
 }, 250);
 
 updatePermalink();
 
-var playerVolume = .3;
+var playerVolume = .4;
 
 playCurrentParams();
-
-pausePlayer();
-
-
-
 
 
 
