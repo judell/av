@@ -334,7 +334,7 @@ function minutesAndSecondsToSeconds(min, sec) {
 }
 
 function parseNumber (value) {
-  return ( value === '' ) ? 0 : parseInt(value);
+  return (! value) ? 0 : parseInt(value);
 } 
 
 function maybePause(player, endmin, endsec) {
@@ -623,9 +623,7 @@ setInterval( function() {
 
 updatePermalink();
 
-var playerVolume = .4;
-
-playCurrentParams();
+setTimeout(playCurrentParams, 200);
 
 
 
