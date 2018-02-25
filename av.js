@@ -5,14 +5,6 @@ examples:
 */
 function nudge(boundary, unit, amount) {
 
-  if ( boundary === 'start' && isStartLocked() ) {
-    return;
-  }
-
-  if ( boundary === 'end' && isEndLocked() ) {
-    return;
-  }
-
   var targetId = boundary + unit;
   var boundaryValue = getFieldValue(targetId) + amount;
   setField(targetId, boundaryValue);
@@ -30,21 +22,21 @@ function nudge(boundary, unit, amount) {
     }
   }
 
-  if ( isStartMode() ) {
-    pauseCurrentParams();
+  if ( boundary === 'start' ) {
+    var { startmin, startsec } = getFieldValues();
+    var start = minutesAndSecondsToSeconds(startmin, startsec);
+    slider.noUiSlider.set([start,null]);
   }
-  else {
-    pauseEndParams();
+
+  if ( boundary === 'end' ) {
+    var { endmin, endsec } = getFieldValues();
+    var end = minutesAndSecondsToSeconds(endmin, endsec);
+    slider.noUiSlider.set([null,end]);
+    setClipEnd(endmin, endsec);
   }
 
-}
+  updatePermalink();
 
-function isAudio() {
-  return ( mode === 'audio' );
-}
-
-function isVideo() {
-  return ( mode === 'video' );
 }
 
 function getCurrentMinSec(player) {
@@ -54,54 +46,6 @@ function getCurrentMinSec(player) {
     currentMin: currentMin,
     currentSec: currentSec,
   }
-}
-
-function getDuration(player) {
-  return minutesAndSecondsFromSeconds(player.duration);
-}
-
-function getLockState() {
-  return {
-    startLocked: document.getElementById('startlocked').checked,
-    endLocked: document.getElementById('endlocked').checked,
-  }
-}
-
-function setLockState(id, isLocked) {
-  document.getElementById(id).checked = isLocked;
-  var controlsClass = ( id === 'startlocked' ) ? '.start-controls' : '.end-controls';
-  document.querySelectorAll(controlsClass + ' .arrow').forEach(function(e) {
-    e.style.color = isLocked ? "gray" : "black";
-  })
-}
-
-function getRadioChecked() {
-  return document.querySelector("input[name='radio']:checked");
-}
-
-function isStartMode() {
-  var radio = getRadioChecked();
-  return ( radio && radio.value === 'start' );
-}
-
-function isEndMode() {
-  var radio = getRadioChecked();
-  return ( radio && radio.value === 'end' );
-}
-
-function isStartLocked() {
-  var { startLocked } = getLockState();
-  return startLocked;
-}
-
-function isEndLocked() {
-  var { endLocked } = getLockState();
-  return endLocked;
-}
-
-function isBothLocked() {
-  var {startLocked, endLocked } = getLockState();
-  return ( startLocked === true && endLocked === true );
 }
 
 function seekStart() {
@@ -122,59 +66,6 @@ function seekEnd() {
   player.currentTime = t; 
 }
 
-function disableStartNudge() {
-  var startCheckbox = document.getElementById('startlocked');
-  startCheckbox.disabled = true;
-}
-
-function enableStartNudge() {
-  var startCheckbox = document.getElementById('startlocked');
-  startCheckbox.disabled = false;
-  var endCheckbox = document.getElementById('endlocked');
-  endCheckbox.checked = true;
-  endLockChange();
-}
-
-function disableEndNudge() {
-  var endCheckbox = document.getElementById('endlocked');
-  endCheckbox.disabled = true;
-}
-
-function enableEndNudge() {
-  var endCheckbox = document.getElementById('endlocked');
-  endCheckbox.disabled = false;
-  var startCheckbox = document.getElementById('startlocked');
-  startCheckbox.checked = true;
-  startLockChange();
-}
-
-function startLockChange() {
-  var startCheckbox = document.getElementById('startlocked');
-  if ( startCheckbox.checked ) {
-    setArrowColor('.start-controls .arrow', 'gray');
-  }
-  else {
-    setArrowColor('.start-controls .arrow', 'black');
-  }
-
-  if ( ! startCheckbox.checked ) {
-    seekStart();
-  }
-}
-
-function endLockChange() {
-  var endCheckbox = document.getElementById('endlocked');
-  if ( endCheckbox.checked ) {
-    setArrowColor('.end-controls .arrow', 'gray');
-  }
-  else {
-    setArrowColor('.end-controls .arrow', 'black');
-  }
-
-  if ( ! endCheckbox.checked ) {
-    seekEnd();  
-  }
-}
 
 function urlChange() {
   var url = getFieldValue('url');
@@ -186,23 +77,12 @@ function urlChange() {
   }
 }
 
-function radioChange() {
-  var radioChecked = document.querySelector("input[name='radio']:checked").value;
-  if ( radioChecked === 'start' ) {
-    enableStartNudge();
-    disableEndNudge();
-    seekStart();
-  }
-  else {
-    disableStartNudge();
-    enableEndNudge();  
-    seekEnd();
-  }
-
+function getById(id) {
+  return document.getElementById(id);
 }
 
-function getFieldValue(id, value) {
-  var retVal = document.getElementById(id).value;
+function getFieldValue(id) {
+  var retVal = getById(id).value;
   if ( isNaN(retVal) ) {
     return retVal;
   }
@@ -211,7 +91,33 @@ function getFieldValue(id, value) {
   }
 }
 
-function handleFieldChange() {
+function updatePermalink() {
+  var { url,
+        startmin,
+        startsec,
+        endmin,
+        endsec
+        } = getFieldValues();
+
+  var editorHref = `${mode}.html?url=${url}&startmin=${startmin}&startsec=${startsec}&endmin=${endmin}&endsec=${endsec}`;
+
+  getById('permalinkHref').href = editorHref;
+
+  var playbackStart = minutesAndSecondsToSeconds(startmin, startsec);
+  var playbackEnd = minutesAndSecondsToSeconds(endmin, endsec);
+
+  var playbackHref = `${url}#t=${playbackStart},${playbackEnd}`;
+
+  getById('playbackHref').href = playbackHref;
+
+}
+
+function handleFieldChange(field) {
+  console.log('fieldChange', field);
+  var { startmin, startsec, endmin, endsec } = getFieldValues();
+  var start = minutesAndSecondsToSeconds(startmin, startsec);
+  var end = minutesAndSecondsToSeconds(endmin, endsec);
+  slider.noUiSlider.set([start,end]);
   updatePermalink();
 }
 
@@ -230,97 +136,118 @@ function getFieldValues() {
   var endsec = getFieldValue('endsec');
   endsec = parseNumber(endsec);
 
-  var startlocked = document.getElementById('startlocked').checked;
-  var endlocked = document.getElementById('endlocked').checked;
-
   return {
     url: url,
     startmin: startmin, 
     startsec: startsec,
     endmin: endmin, 
     endsec: endsec, 
-    startlocked: startlocked,
-    endlocked: endlocked,
+  }
+}
+
+function setClipEnd(min, sec) {
+  getById('end-clip-min').innerText = min;
+  getById('end-clip-sec').innerText = sec;
+}
+
+function getClipEnd() {
+  return {
+    min: parseNumber(getById('end-clip-min').innerText),
+    sec: parseNumber(getById('end-clip-sec').innerText),
   }
 }
 
 function setField(id, value) {
-  document.getElementById(id).value = value;
+  getById(id).value = value;
 }
 
-function setFields(url, startmin, startsec, endmin, endsec, startlocked, endlocked) {
-  document.getElementById('url').value = url;
+function setFields(url, startmin, startsec, endmin, endsec) {
+  getById('url').value = url;
 
-  document.getElementById('startmin').value = startmin;
-  document.getElementById('startsec').value = startsec;
+  getById('startmin').value = startmin;
+  getById('startsec').value = startsec;
 
-  document.getElementById('endmin').value = endmin;
-  document.getElementById('endsec').value = endsec;
+  getById('endmin').value = endmin;
 
-  document.getElementById('startlocked').value = startlocked;
-  document.getElementById('endlocked').value = endlocked;
+  getById('endsec').value = endsec;
 }
 
-function playCurrentParams() {
-  var { url, startmin, startsec, endmin, endsec } = getFieldValues();
-  play(url, startmin, startsec, endmin, endsec);
+function captureStart() {
+  var { currentMin, currentSec } = getCurrentMinSec(player);
+  getById('startmin').value = currentMin;
+  getById('startsec').value = currentSec;
   updatePermalink();
 }
 
-function pausePlayer() {
-  player = document.getElementById('player');
-  player.pause();
-}
-
-function pauseCurrentParams() {
-  playCurrentParams();
-  pausePlayer();
-}
-
-function pauseEndParams() {
-  var { url, endmin, endsec } = getFieldValues();
-  play(url, endmin, endsec, origEndMin, origEndSec);
-  pausePlayer();  
+function captureEnd() {
+  var { currentMin, currentSec } = getCurrentMinSec(player);
+  getById('endmin').value = currentMin;
+  getById('endsec').value = currentSec;
+  updatePermalink();
 }
 
 function playIntro() {
-  var { url, startmin, startsec, endmin, endsec } = getFieldValues();
+  pauseClip();
+  var { startmin, startsec } = getFieldValues();
   var t = minutesAndSecondsToSeconds(startmin, startsec);
+  player.currentTime = t;
   t += 3;
-  var end = secondsToMinutesAndSeconds(t);
-  play(url, startmin, startsec, end.min, end.sec, true);
+  var clipEnd = secondsToMinutesAndSeconds(t);
+  setClipEnd(clipEnd.min, clipEnd.sec);
+  player.play();
 }
 
 function playOutro() {
-  var { url, startmin, startsec, endmin, endsec } = getFieldValues();
+  var { endmin, endsec } = getFieldValues();
   var t = minutesAndSecondsToSeconds(endmin, endsec);
-  t -= 3;
-  var start = secondsToMinutesAndSeconds(t);
-  play(url, start.min, start.sec, endmin, endsec, true);
+  player.currentTime = t-3;
+  var clipEnd = secondsToMinutesAndSeconds(t);
+  setClipEnd(clipEnd.min, clipEnd.sec);
+  player.play();
+}
+
+function playClip() {
+
+  var control = getById('play-pause');
+  control.setAttribute('onclick','pauseClip()');
+  control.setAttribute('title','pause clip');
+  control.innerHTML = '&#10074;&#10074;';
+
+  var { startmin, startsec, endmin, endsec } = getFieldValues();
+  var t = minutesAndSecondsToSeconds(startmin, startsec);
+  setClipEnd(endmin, endsec);
+  player.currentTime = t;
+  player.play();
+}
+
+function pauseClip() {
+
+  var control = getById('play-pause');
+  control.setAttribute('onclick','playClip()');
+  control.setAttribute('title','play clip');
+  control.innerHTML = '&#9654;';
+
+  player.pause();
 }
 
 
-function updatePermalink() {
-  var { url,
-        startmin, 
-        startsec,
-        endmin, 
-        endsec,
-        startlocked,
-        endlocked } = getFieldValues();
+function setPlayer() {
 
-  var editorHref = `${mode}.html?url=${url}&startmin=${startmin}&startsec=${startsec}&endmin=${endmin}&endsec=${endsec}`;
+  var fields = getFieldValues();
 
-  document.getElementById('permalinkHref').href = editorHref;
+  var player = getById('player');
 
-  var playbackStart = minutesAndSecondsToSeconds(startmin, startsec);
-  var playbackEnd = minutesAndSecondsToSeconds(endmin, endsec);
+  var source = getById('source');
+  source.remove();
+  source = document.createElement('source');
+  source.id = 'source';
+  source.src = getFieldValue('url');
+  player.appendChild(source);
 
-  var playbackHref = `${url}#t=${playbackStart},${playbackEnd}`;
-
-  document.getElementById('playbackHref').href = playbackHref;
-
+  var t = minutesAndSecondsToSeconds(fields.startmin, fields.startsec);
+  player.currentTime = t;
 }
+
 
 function secondsToMinutesAndSeconds(seconds) {
   var min = parseInt(seconds / 60, 10);
@@ -337,87 +264,41 @@ function parseNumber (value) {
   return (! value) ? 0 : parseInt(value);
 } 
 
-function maybePause(player, endmin, endsec) {
-  player.ontimeupdate = function() {
-    if ( player.currentTime > minutesAndSecondsToSeconds(endmin, endsec) ) {
-      player.pause();
-    }
-  }
-}
-
-function play(url, startmin, startsec, endmin, endsec, isIntro) {
-
-  var player = document.getElementById('player');
-  player.style["width"] = "100%";
-
-  var source = document.getElementById('source');
-  source.remove();
-
-  source = document.createElement('source');
-  source.id = 'source';
-  source.src = url;
-  player.appendChild(source);
-
-  var t = minutesAndSecondsToSeconds(startmin, startsec);
-  player.currentTime = t;
-
-  player.volume = playerVolume;  
-
-  player.onseeked = function () {
-    adjustFields();
-    maybePause(player, endmin, endsec);
-    player.play();
-  }
-
-  player.play();
-}
-
-function adjustFields() {
-
+function getStartAndEndSecs() {
   var { currentMin, currentSec } = getCurrentMinSec(player);
 
   var current = minutesAndSecondsToSeconds(currentMin, currentSec);
-
   var { startmin, startsec, endmin, endsec } = getFieldValues();
   
   var start = minutesAndSecondsToSeconds(startmin, startsec);
 
   var end = minutesAndSecondsToSeconds(endmin, endsec);
 
-  if ( isStartMode() ) {
-    if ( isStartLocked() ) {
-      return;
-    }
-    if ( current <= end ) {
-      document.getElementById('startmin').value = currentMin;
-      document.getElementById('startsec').value = currentSec;
-      updatePermalink();
-    } 
-  }
-
-  if ( isEndMode() ) {
-    if ( isEndLocked() ) {
-      return;
-    }
-    if ( current >= start ) {
-      document.getElementById('endmin').value = currentMin;
-      document.getElementById('endsec').value = currentSec;
-      updatePermalink();
-    } 
+  return {
+    start:start,
+    end:end,
   }
 
 }
 
-function captureStart() {
-  var { currentMin, currentSec } = getCurrentMinSec(player);
-  setField('startmin', currentMin);
-  setField('startsec', currentSec);
-}
+function adjustFields() {
 
-function captureEnd() {
+  var start = getStartAndEndSecs().start;
+
+  var end = getStartAndEndSecs().end;
+
   var { currentMin, currentSec } = getCurrentMinSec(player);
-  setField('endmin', currentMin);
-  setField('endsec', currentSec);
+
+  if ( current <= end ) {
+    getById('startmin').value = currentMin;
+    getById('startsec').value = currentSec;
+  }
+
+  if ( current >= start ) {
+    getById('endmin').value = currentMin;
+    getById('endsec').value = currentSec;
+  }
+
 }
 
 function gup(name, str) {
@@ -429,7 +310,7 @@ function gup(name, str) {
     var regexS = "[\\?&]" + name + "=([^&#]*)";
     var regex = new RegExp(regexS);
     var results = regex.exec(str);
-    if (results === null)
+;    if (results === null)
         return "";
     else
         return results[1];
@@ -439,125 +320,85 @@ function gup(name, str) {
 
 var urlLabel = `
 <p class="url-label">
-<span class="label">url&nbsp;</span> <input size="60" onchange="urlChange();" id="url">
+<span class="label">url&nbsp;</span> <input size="80" onchange="urlChange();" id="url">
 </p>`;
 
+var backMin = 'title ="nudge back 1 minute"';
+var backSec = 'title="nudge back 1 second"';
+
+var forwardMin = 'title="nudge forward 1 minute"';
+var forwardSec = 'title="nudge forward 1 second"';
+
 var params = `
-<table>
+<div id="controls">
 
-<tr>
-  <td class="label"><input name="radio" value="start" type="radio" onchange="radioChange()">start</input>
-  </td>
-  <td class="start-controls">
-    <table class="min-sec-controls">
-      <tr>
-        <td>
-          <span class="unit">min</span>
-        </td>
-        <td>
-           <input size="3" class="min-or-sec" onchange="handleFieldChange()" id="startmin">
-        </td>
-        <td>
-          <span class="arrow left-arrow" onclick="nudge('start','min',-1)">&#9664;</span>
-        </td>
-        <td>
-          <span class="arrow right-arrow" onclick="nudge('start','min',1)">&#9654;</span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <span class="unit">sec</span>
-        </td>
-        <td>
-          <input size="3" class="min-or-sec" onchange="handleFieldChange()" id="startsec">
-        </td>
-        <td>
-          <span class="arrow left-arrow" onclick="nudge('start','sec',-1)">&#9664;</span>
-        </td>
-        <td>
-          <span class="arrow right-arrow" onclick="nudge('start','sec',1)">&#9654;</span>
-        </td>
-      </tr>
-      <tr>
-        <td class="capture" colspan="2"><a href="javascript:captureStart()">capture</a></td>
-      </tr>
-    </table>
-  </td>
-  <td class="locked">locked</div><div><input id="startlocked" disabled onchange="startLockChange()" type="checkbox"></div></td>
-  <td><button onclick="playIntro()" id="play-clip-intro">play intro</button></td>
-</tr>
+  <div id="start-controls">
 
-<tr><td colspan="4"><hr></td></tr>
+    <div class="label">clip start</div>
 
-<tr>
-  <td class="label"><input name="radio" value="end" type="radio" onchange="radioChange()">end</input></td>
-  <td class="end-controls">
-    <table class="min-sec-controls">
-      <tr>
-        <td>
-          <span class="unit">min</span>
-        </td>
-        <td>
-           <input size="3" class="min-or-sec" onchange="handleFieldChange()" id="endmin">
-        </td>
-        <td>
-          <span class="arrow left-arrow" onclick="nudge('end','min',-1)">&#9664;</span>
-        </td>
-        <td>
-          <span class="arrow right-arrow" onclick="nudge('end','min',1)">&#9654;</span>
-        </td>
-      </tr>
-      <tr>
-      <td></td>
-      </tr>
-      <tr>
-        <td>
-          <span class="unit">sec</span>
-        </td>
-        <td>
-          <input size="3" class="min-or-sec" onchange="handleFieldChange()" id="endsec">
-        </td>
-        <td>
-          <span class="arrow left-arrow" onclick="nudge('end','sec',-1)">&#9664;</span>
-        </td>
-        <td>
-          <span class="arrow right-arrow" onclick="nudge('end','sec',1)">&#9654;</span>
-        </td>
-      </tr>
-      <tr>
-        <td class="capture" colspan="2"><a href="javascript:captureEnd()">capture</a></td>
-      </tr>
-    </table>
-  </td>
-  <td class="locked">locked</div><div><input id="endlocked" disabled onchange="endLockChange()" type="checkbox"></div></td>
-  <td><button onclick="playOutro()" id="play-clip-outro">play outro</button></td>
-</tr>
+    <span class="min-sec-controls">
 
+    <span ${backMin} class="arrow left-arrow" onclick="nudge('start','min',-1)">&#9664;</span>
+    <input class="min-or-sec" onchange="handleFieldChange('startmin')" id="startmin">
+    <span ${forwardMin} class="arrow right-arrow" onclick="nudge('start','min',1)">&#9654;</span>
 
-</table>`;
+    <span ${backSec} class="arrow left-arrow" onclick="nudge('start','sec',-1)">&#9664;</span>
+    <input class="min-or-sec" onchange="handleFieldChange('startsec')" id="startsec">
+    <span ${forwardSec} class="arrow right-arrow" onclick="nudge('start','sec',1)">&#9654;</span>
+    </span>
 
-var permalink = `
-<div class="permalink">
-<p>
-<a id="permalinkHref" href="">link</a> to av editor with these settings
-</p>
-<p>
-<a id="playbackHref" href="">link</a> to player with these settings
-</p>
+    <div class="capture"><a href="javascript:captureStart()">capture</a></div>
+
+    <div class="play-intro-outro">
+      <button onclick="playIntro()">play intro</button>
+    </div>
+
+  </div>
+
+  <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
+
+  <div id="end-controls">
+
+    <div class="label">clip end</div>
+
+    <span ${backMin} class="arrow left-arrow" onclick="nudge('end','min',-1)">&#9664;</span>
+    <input class="min-or-sec" onchange="handleFieldChange('endmin')" id="endmin">
+    <span ${forwardMin} class="arrow right-arrow" onclick="nudge('end','min',1)">&#9654;</span>
+
+    <span ${backSec} class="arrow left-arrow" onclick="nudge('end','sec',-1)">&#9664;</span>
+    <input class="min-or-sec" onchange="handleFieldChange('endsec')" id="endsec">
+    <span ${forwardSec} class="arrow right-arrow" onclick="nudge('end','sec',1)">&#9654;</span>
+
+    <div class="capture"><a href="javascript:captureEnd()">capture</a></div>
+
+    <div class="play-intro-outro">
+      <button onclick="playOutro()">play outro</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="end-clip">
+  <span id="end-clip-min"></span>:<span id="end-clip-sec"></span>
 </div>
 `;
 
-document.getElementById('url-label').innerHTML = urlLabel;
+var permalink = `
+permalinks: <a id="permalinkHref" href="">editor</a>, <a id="playbackHref" href="">playback</a> 
+`;
 
-//document.getElementById('controls').innerHTML = controls;
+getById('url-label').innerHTML = urlLabel;
 
-document.getElementById('params').innerHTML = params;
+getById('params').innerHTML = params;
 
-document.getElementById('permalink').innerHTML = permalink;
+getById('permalink').innerHTML = permalink;
 
-var player = document.getElementById('player');
+var player = getById('player');
 
 var url = gup('url');
+getById('source').src = url;
+getById('url').value = url;
 
 var startmin = gup('startmin');
 startmin = parseNumber(startmin);
@@ -573,26 +414,69 @@ endsec = parseNumber(endsec);
 
 setFields(url, startmin, startsec, endmin, endsec);
 
-setLockState('startlocked', true);
+setClipEnd(endmin, endsec);
 
-setLockState('endlocked', true);
+setPlayer();
 
-var origEndMin = 0;
-var origEndSec = 0;
+var eStopPlayback = new Event('stop-playback');
 
-/*
- * wait for player to be ready to report duration, also wait for
- * doctitle to be adjusted, defer option to separate these concerns
- */
-setTimeout( function() {
+document.body.addEventListener('stop-playback', function(e) {
+  pauseClip();
+  });
+
+var init = function() {
+
+  console.log('trying init');
+  if ( player.readyState === 4 ) {
+    console.log('proceeding init');
+    clearInterval(waitForPlayer);
+  }
+  else {
+    return;
+  }
+
+  var slider = getById('slider');
+
+  var start = getStartAndEndSecs().start;
+
+  var end = getStartAndEndSecs().end;
+  if ( end === 0 ) {
+    end = player.duration;
+  }
+
+  noUiSlider.create(slider, {
+    start: [start, end],
+    range: {
+      'min': [ 0 ],
+      'max': [ player.duration ]
+    }
+  });
+
+  slider.noUiSlider.on('update', function(){
+    var { url, endmin, endsec } = getFieldValues();
+
+    var startSec = Math.floor(slider.noUiSlider.get()[0]);
+    var start = secondsToMinutesAndSeconds(startSec);
+
+    var endSec = Math.floor(slider.noUiSlider.get()[1]);
+    var end = secondsToMinutesAndSeconds(endSec);
+
+    setFields(url, start.min, start.sec, end.min, end.sec);
+
+    updatePermalink();
+
+    setPlayer();
+
+    pauseClip();
+
+    setTimeout(playClip, 500);
+
+  });
 
   // duration
 
   var { min, sec } = secondsToMinutesAndSeconds(player.duration);
 
-  origEndMin = min;
-  origEndSec = sec;
-  
   var endmin = getFieldValue('endmin');
   var endsec = getFieldValue('endsec');
 
@@ -607,23 +491,29 @@ setTimeout( function() {
   var newtitle = `${url} from ${startmin}:${startsec} to ${endmin}:${endsec}`;
   var doctitle = document.querySelector('head title');
   doctitle.innerText = newtitle;
-  
-}, 500);
 
-// adjust fields as playhead moves
+}
+
+var waitForPlayer = setInterval(init, 500);
+
 setInterval( function() {
 
-  if ( isBothLocked() ) {
-    return;
+  var { currentMin, currentSec } = getCurrentMinSec(player);
+
+  getById('slider-start-min').innerText = currentMin;
+  getById('slider-start-sec').innerText = currentSec.toString().padStart(2,'0');
+
+  var current = minutesAndSecondsToSeconds(currentMin, currentSec);
+
+  var { min, sec } = getClipEnd();
+  var end = minutesAndSecondsToSeconds(min, sec);
+
+  if ( current >= end ) {
+    document.body.dispatchEvent(eStopPlayback);
   }
 
-  adjustFields();
+}, 500);
 
-}, 250);
-
-updatePermalink();
-
-setTimeout(playCurrentParams, 200);
 
 
 

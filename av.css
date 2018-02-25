@@ -1,42 +1,43 @@
 body { font-family:verdana; margin: .25in }
 
-button { margin-left:8px; margin-right:8px; padding:1px; }
+video { margin-top:12px; height:70% }
 
-h1 { font-size:16pt; margin-left:6px }
+//audio { display:none }
 
-table { margin:auto; border-spacing:4px; background-color:#f2f2f2 }
+.title { font-size:larger; font-weight:bold }
 
-table .min-sec-controls { border-spacing:2px }
+//#top-bar { display: flex }
 
-#permalink { margin-top:20px; text-align:center }
+.play-clip { }
 
-//#permalinkText { word-wrap:break-word; text-align:center }
+.play-intro-outro { text-align:center; margin-top:6px }
 
-.arrow { font-size:x-large; cursor:pointer }
+.capture { text-align:center; font-size:smaller }
 
-.capture { font-size:smaller; text-align:center }
+#end-clip { display:none }
 
-.end-controls .arrow {  }
+#controls { display: flex; }
 
-.label { font-weight:bold }
+#start-controls, #end-controls { }
 
-//.left-arrow { margin-left:6px; margin-right:4px;}
+#slider { width:100%; margin-left:1.5em; margin-top:10px; margin-bottom:10px; }
 
-.locked { text-align:center }
+#slider-container { display:flex }
 
-.play-clip { text-align:center; margin-bottom:20px }td input { width:24px }
+#slider-counters { margin-left:4px; margin-top:8px; font-size:smaller; }
 
-//.right-arrow { margin-left:4px;}
+.label { text-align:center; font-size:smaller }
 
-//.min-or-sec { width:30px; }
-
-.permalink { font-size:smaller }
-
-.play-clip-controls-container { }
-
-.start-controls .arrow {  }
+#permalink { font-size:smaller }
 
 .unit { font-family:courier }
 
 .url-label { margin-left:10px; margin-top:20px }
-.
+
+.min-or-sec { width: 2em }
+
+.min-sec-controls { }
+
+.arrow { cursor: pointer }
+
+.slider-play-pause { cursor: pointer; font-size: x-large }

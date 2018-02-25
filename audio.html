@@ -2,35 +2,37 @@
 <head>
 <title>HTML5 Audio Clipper</title>
 <link rel="stylesheet" href="av.css">
+<link href="nouislider.css" rel="stylesheet">
 </head>
 
 <body>
 
-<h1>HTML5 Audio Clipper</h1>
-
-<div id="url-label">
+<div id="top-bar">
+<span class="title">HTML5 Audio Clipper</span>
+<span id="permalink"></span>
 </div>
 
-<div id="container">
-<audio id="player" controls="controls" autoplay="autoplay">
+<div id="url-label"></div>
+
+<div id="slider-container">
+  <div title="play clip" class="slider-play-pause" onclick="playClip()" id="play-pause">&#9654;</div>
+  <div id="slider-counters">
+    <span id="slider-start-min">0</span>:<span id="slider-start-sec">00</span>
+  </div>
+  <div id="slider"></div>
+</div>
+
+<audio id="player">
 <source id="source" src="" />
 </audio>
-</div>
-
-<div class="play-clip">
-
-<button onclick="javascript:playCurrentParams()">play clip</button>
-
-</div>			 
 
 <div id="params"></div>
-
-<div id="permalink"></div>
 
 <script>
 var mode = 'audio';
 </script>
 
+<script src="nouislider.js"></script>
 <script src="av.js"></script>
 
 </body>
