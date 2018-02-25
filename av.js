@@ -48,25 +48,6 @@ function getCurrentMinSec(player) {
   }
 }
 
-function seekStart() {
-  var { startmin, startsec } = getFieldValues();
-  var t = minutesAndSecondsToSeconds(startmin, startsec);
-  player.currentTime = t;
-}
-
-function setArrowColor(controlsClass, color) {
-  document.querySelectorAll(controlsClass).forEach(function(e) {
-    e.style.color = color;
-  });
-}
-
-function seekEnd() {
-  var { endmin, endsec } = getFieldValues();
-  var t = minutesAndSecondsToSeconds(endmin, endsec);
-  player.currentTime = t; 
-}
-
-
 function urlChange() {
   var url = getFieldValue('url');
   if ( isAudio() ) {
