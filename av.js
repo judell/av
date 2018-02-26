@@ -174,6 +174,7 @@ function captureStart() {
   var start = minsAndSecsToSecs(currentMin, currentSec);
   slider.noUiSlider.set([start,null]);
   updatePermalink();
+  playClip();
 }
 
 function captureEnd() {
@@ -183,6 +184,7 @@ function captureEnd() {
   var end = minsAndSecsToSecs(currentMin, currentSec);
   slider.noUiSlider.set([null,end]);
   updatePermalink();
+  playClip();
 }
 
 function playIntro() {
