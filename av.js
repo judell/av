@@ -24,15 +24,17 @@ function nudge(boundary, unit, amount) {
 
   if ( boundary === 'start' ) {
     var { startmin, startsec } = getFieldValues();
-    var start = minutesAndSecondsToSeconds(startmin, startsec);
+    var start = minsAndSecsToSecs(startmin, startsec);
     slider.noUiSlider.set([start,null]);
+    playIntro();
   }
 
   if ( boundary === 'end' ) {
     var { endmin, endsec } = getFieldValues();
-    var end = minutesAndSecondsToSeconds(endmin, endsec);
+    var end = minsAndSecsToSecs(endmin, endsec);
     slider.noUiSlider.set([null,end]);
     setClipEnd(endmin, endsec);
+    playOutro();
   }
 
   updatePermalink();
@@ -46,6 +48,10 @@ function getCurrentMinSec(player) {
     currentMin: currentMin,
     currentSec: currentSec,
   }
+}
+
+function getCurrentTime(player) {
+  return Math.floor(player.currentTime);
 }
 
 function isAudio() {
@@ -92,8 +98,8 @@ function updatePermalink() {
 
   getById('permalinkHref').href = editorHref;
 
-  var playbackStart = minutesAndSecondsToSeconds(startmin, startsec);
-  var playbackEnd = minutesAndSecondsToSeconds(endmin, endsec);
+  var playbackStart = minsAndSecsToSecs(startmin, startsec);
+  var playbackEnd = minsAndSecsToSecs(endmin, endsec);
 
   var playbackHref = `${url}#t=${playbackStart},${playbackEnd}`;
 
@@ -104,8 +110,8 @@ function updatePermalink() {
 function handleFieldChange(field) {
   console.log('fieldChange', field);
   var { startmin, startsec, endmin, endsec } = getFieldValues();
-  var start = minutesAndSecondsToSeconds(startmin, startsec);
-  var end = minutesAndSecondsToSeconds(endmin, endsec);
+  var start = minsAndSecsToSecs(startmin, startsec);
+  var end = minsAndSecsToSecs(endmin, endsec);
   slider.noUiSlider.set([start,end]);
   updatePermalink();
 }
@@ -165,6 +171,8 @@ function captureStart() {
   var { currentMin, currentSec } = getCurrentMinSec(player);
   getById('startmin').value = currentMin;
   getById('startsec').value = currentSec;
+  var start = minsAndSecsToSecs(currentMin, currentSec);
+  slider.noUiSlider.set([start,null]);
   updatePermalink();
 }
 
@@ -172,25 +180,26 @@ function captureEnd() {
   var { currentMin, currentSec } = getCurrentMinSec(player);
   getById('endmin').value = currentMin;
   getById('endsec').value = currentSec;
+  var end = minsAndSecsToSecs(currentMin, currentSec);
+  slider.noUiSlider.set([null,end]);
   updatePermalink();
 }
 
 function playIntro() {
-  pauseClip();
   var { startmin, startsec } = getFieldValues();
-  var t = minutesAndSecondsToSeconds(startmin, startsec);
+  var t = minsAndSecsToSecs(startmin, startsec);
   player.currentTime = t;
-  t += 3;
-  var clipEnd = secondsToMinutesAndSeconds(t);
+  t += 2;
+  var clipEnd = secsToMinsAndSecs(t);
   setClipEnd(clipEnd.min, clipEnd.sec);
   player.play();
 }
 
 function playOutro() {
   var { endmin, endsec } = getFieldValues();
-  var t = minutesAndSecondsToSeconds(endmin, endsec);
-  player.currentTime = t-3;
-  var clipEnd = secondsToMinutesAndSeconds(t);
+  var t = minsAndSecsToSecs(endmin, endsec);
+  player.currentTime = t - 2;
+  var clipEnd = secsToMinsAndSecs(t);
   setClipEnd(clipEnd.min, clipEnd.sec);
   player.play();
 }
@@ -203,7 +212,7 @@ function playClip() {
   control.innerHTML = '&#10074;&#10074;';
 
   var { startmin, startsec, endmin, endsec } = getFieldValues();
-  var t = minutesAndSecondsToSeconds(startmin, startsec);
+  var t = minsAndSecsToSecs(startmin, startsec);
   setClipEnd(endmin, endsec);
   player.currentTime = t;
   player.play();
@@ -233,18 +242,18 @@ function setPlayer() {
   source.src = getFieldValue('url');
   player.appendChild(source);
 
-  var t = minutesAndSecondsToSeconds(fields.startmin, fields.startsec);
+  var t = minsAndSecsToSecs(fields.startmin, fields.startsec);
   player.currentTime = t;
 }
 
 
-function secondsToMinutesAndSeconds(seconds) {
+function secsToMinsAndSecs(seconds) {
   var min = parseInt(seconds / 60, 10);
   var sec = parseInt(seconds % 60);
   return { min, sec };
 }
 
-function minutesAndSecondsToSeconds(min, sec) {
+function minsAndSecsToSecs(min, sec) {
   var seconds = (60 * min) + sec;
   return seconds;
 }
@@ -256,12 +265,12 @@ function parseNumber (value) {
 function getStartAndEndSecs() {
   var { currentMin, currentSec } = getCurrentMinSec(player);
 
-  var current = minutesAndSecondsToSeconds(currentMin, currentSec);
+  var current = minsAndSecsToSecs(currentMin, currentSec);
   var { startmin, startsec, endmin, endsec } = getFieldValues();
   
-  var start = minutesAndSecondsToSeconds(startmin, startsec);
+  var start = minsAndSecsToSecs(startmin, startsec);
 
-  var end = minutesAndSecondsToSeconds(endmin, endsec);
+  var end = minsAndSecsToSecs(endmin, endsec);
 
   return {
     start:start,
@@ -415,9 +424,7 @@ document.body.addEventListener('stop-playback', function(e) {
 
 var init = function() {
 
-  console.log('trying init');
   if ( player.readyState === 4 ) {
-    console.log('proceeding init');
     clearInterval(waitForPlayer);
   }
   else {
@@ -442,29 +449,30 @@ var init = function() {
   });
 
   slider.noUiSlider.on('update', function(){
-    var { url, endmin, endsec } = getFieldValues();
-
-    var startSec = Math.floor(slider.noUiSlider.get()[0]);
-    var start = secondsToMinutesAndSeconds(startSec);
-
-    var endSec = Math.floor(slider.noUiSlider.get()[1]);
-    var end = secondsToMinutesAndSeconds(endSec);
-
-    setFields(url, start.min, start.sec, end.min, end.sec);
-
-    updatePermalink();
-
-    setPlayer();
 
     pauseClip();
 
-    setTimeout(playClip, 500);
+    var { url, startmin, startsec, endmin, endsec } = getFieldValues();
+
+//    console.log(startmin, startsec, ':', endmin, endsec);
+
+    var sliderStartSec = Math.floor(slider.noUiSlider.get()[0]);
+    var sliderStart = secsToMinsAndSecs(sliderStartSec);
+
+    var sliderEndSec = Math.floor(slider.noUiSlider.get()[1]);
+    var sliderEnd = secsToMinsAndSecs(sliderEndSec);
+
+//    console.log(sliderStart.min, sliderStart.sec, ':', sliderEnd.min, sliderEnd.sec);
+
+    setFields(url, sliderStart.min, sliderStart.sec, sliderEnd.min, sliderEnd.sec);
+    setPlayer();
+    updatePermalink();
 
   });
 
   // duration
 
-  var { min, sec } = secondsToMinutesAndSeconds(player.duration);
+  var { min, sec } = secsToMinsAndSecs(player.duration);
 
   var endmin = getFieldValue('endmin');
   var endsec = getFieldValue('endsec');
@@ -492,10 +500,10 @@ setInterval( function() {
   getById('slider-start-min').innerText = currentMin;
   getById('slider-start-sec').innerText = currentSec.toString().padStart(2,'0');
 
-  var current = minutesAndSecondsToSeconds(currentMin, currentSec);
+  var current = minsAndSecsToSecs(currentMin, currentSec);
 
   var { min, sec } = getClipEnd();
-  var end = minutesAndSecondsToSeconds(min, sec);
+  var end = minsAndSecsToSecs(min, sec);
 
   if ( current >= end ) {
     document.body.dispatchEvent(eStopPlayback);
