@@ -48,6 +48,14 @@ function getCurrentMinSec(player) {
   }
 }
 
+function isAudio() {
+  return ( mode === 'audio' );
+}
+
+function isVideo() {
+  return ( mode === 'video' );
+}
+
 function urlChange() {
   var url = getFieldValue('url');
   if ( isAudio() ) {
