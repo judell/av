@@ -390,8 +390,8 @@ var params = `
 
 var permalinks = `
 <span class="ui-link-label">
-<a title="link to this clip editor with these settings" id="permalinkHref" href="">editor</a> 
-<a title="link to html5 player with these settings" id="playbackHref" href="">player</a>
+<a title="link to clip editor with these settings" id="permalinkHref" href="">editor</a>
+<a title="link to html5 player for this clip" id="playbackHref" href="">player</a>
 </span> 
 `;
 
