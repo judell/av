@@ -1,38 +1,44 @@
-body { font-family:verdana; margin: .25in }
+body { font-family:arial; margin-left:20px; margin-right:20px }
 
-video { margin-top:12px; height:70% }
+.app-container { margin-left:auto; margin-right:auto }
 
-//audio { display:none }
+.av-control { border-style:solid; border-width:thin; border-color: #ded8d8; }
 
-.title { font-size:larger; font-weight:bold }
+.controls { margin-left:auto; margin-right:auto }
 
-//#top-bar { display: flex }
+.video-control { height:65%; }
 
-.play-clip { }
+.audio-control { width:100%; }
 
-.play-intro-outro { text-align:center; margin-top:6px }
+.top-bar { display: flex; }
 
-.capture { text-align:center; font-size:smaller }
+.params { margin-top: 8px; }
 
-#end-clip { display:none }
+.ui-link-label { font-size:smaller }
 
-#controls { display: flex; }
+.ui-label { }
 
-#start-controls, #end-controls { }
+.control-cluster-label { text-align:center }
 
-#slider { width:100%; margin-left:1.5em; margin-top:10px; margin-bottom:10px; }
+.button { text-align:center; white-space:nowrap }
 
-#slider-container { display:flex }
+.slider-button { margin-top:7px; }
 
-#slider-counters { margin-left:4px; margin-top:8px; font-size:smaller; }
+.clip-controls-spacer { width:8px }
 
-.label { text-align:center; font-size:smaller }
+.controls-button { margin-top:6px; }
 
-#permalink { font-size:smaller }
+.capture-button {}
 
-.unit { font-family:courier }
+.controls { display: flex; }
 
-.url-label { margin-left:10px; margin-top:20px }
+.slider-container { display:flex; margin-top:8px }
+
+.end-clip { display:none }
+
+.slider { width:100%; margin-left:10px; margin-top:10px; margin-bottom:10px; }
+
+.video-slider { }
 
 .min-or-sec { width: 2em }
 

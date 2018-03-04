@@ -7,26 +7,29 @@
 
 <body>
 
-<div id="top-bar">
-<span class="title">HTML5 Audio Clipper</span>
-<span id="permalink"></span>
+<div class="app-container">
+
+<div class="top-bar">
+  <span class="ui-text">HTML5 Audio Clipper</span>
+   &nbsp;
+  <span id="permalinks"/>
 </div>
 
-<div id="url-label"></div>
+<div class="ui-text ui-label" id="url-label"></div>
 
-<div id="slider-container">
-  <div title="play clip" class="slider-play-pause" onclick="playClip()" id="play-pause">&#9654;</div>
-  <div id="slider-counters">
-    <span id="slider-start-min">0</span>:<span id="slider-start-sec">00</span>
-  </div>
-  <div id="slider"></div>
-</div>
-
-<audio id="player">
+<audio class="av-control audio-control" id="player" controls>
 <source id="source" src="" />
 </audio>
 
-<div id="params"></div>
+
+<div class="slider-container">
+  <div class="button slider-button">
+    <button id='play-clip-button' onclick="playClip()">play clip</button>
+  </div>
+  <div class="slider" id="slider"></div>
+</div>
+
+<div class="params" id="params"></div>
 
 <script>
 var mode = 'audio';
@@ -34,6 +37,8 @@ var mode = 'audio';
 
 <script src="nouislider.js"></script>
 <script src="av.js"></script>
+
+</div>
 
 </body>
 </html>
