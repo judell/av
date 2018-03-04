@@ -288,6 +288,7 @@ function handleResize() {
     slider.style.width = playerWidth - playClipButtonWidth;
     appContainer.style.width = playerWidth;
   }
+
 }
 
 /* inactive
@@ -435,6 +436,7 @@ document.body.addEventListener("stop-playback", function(e) {
 var awaitPlayerReady = function() {
   if (player.readyState === 4) {
     clearInterval(waitForPlayer);
+    document.body.style.visibility = 'visible';
   } else {
     return;
   }
