@@ -9,36 +9,33 @@
 
 <div class="app-container">
 
-<div class="top-bar">
-  <span class="ui-text">HTML5 Audio Clipper</span>
-   &nbsp;
-  <span id="permalinks"/>
-</div>
-
-<div class="ui-text ui-label" id="url-label"></div>
-
-<audio class="av-control audio-control" id="player" controls>
-<source id="source" src="" />
-</audio>
-
-
-<div class="slider-container">
-  <div class="button slider-button">
-    <button id='play-clip-button' onclick="playClip()">play clip</button>
+  <div class="top-bar">
+    <span class="ui-text">HTML5 Audio Clipper</span>
+     &nbsp;
+    <span id="permalinks"/>
   </div>
-  <div class="slider" id="slider"></div>
+
+  <div class="ui-text ui-label" id="url-or-id-label"></div>
+
+  <audio class="av-control audio-control" id="player" controls>
+    <source id="source" src="" />
+  </audio>
+
+  <div class="slider-container">
+    <div class="button slider-button">
+      <button id='play-clip-button' onclick="playClip()">play clip</button>
+    </div>
+    <div class="slider" id="slider"></div>
+  </div>
+
+  <div class="params" id="params"></div>
+
 </div>
 
-<div class="params" id="params"></div>
-
-<script>
-var mode = 'audio';
-</script>
-
+<script>var mode = 'audio'</script>
 <script src="nouislider.js"></script>
+<script src="common.js"></script>
 <script src="av.js"></script>
-
-</div>
 
 </body>
 </html>

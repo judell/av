@@ -1,5 +1,7 @@
 body { font-family:arial; margin-left:40px; margin-right:40px; visibility:hidden }
 
+input { margin-left:3px; }
+
 .app-container { margin-left:auto; margin-right:auto }
 
 .av-control { border-style:solid; border-width:thin; border-color: #ded8d8; }
@@ -24,7 +26,7 @@ body { font-family:arial; margin-left:40px; margin-right:40px; visibility:hidden
 
 .slider-button { margin-top:7px; }
 
-.clip-controls-spacer { width:8px }
+.clip-controls-spacer { width:14px }
 
 .controls-button { margin-top:6px; }
 
