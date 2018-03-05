@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>YouTube Clipper</title>
+<link rel="stylesheet" href="av.css">
+<link href="nouislider.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="app-container">
+
+  <div class="top-bar">
+    <span class="ui-text">YouTube Clipper</span>
+     &nbsp;
+    <span id="permalinks"/>
+  </div>
+
+  <div class="ui-text ui-label" id="url-or-id-label"></div>
+
+  <div id="container">
+    <div id="player"></div>
+   </div>
+
+  <div class="slider-container">
+    <div class="button slider-button">
+      <button id='play-clip-button' onclick="playClip()">play clip</button>
+    </div>
+    <div class="slider" id="slider"></div>
+  </div>
+
+  <div class="params" id="params"></div>
+
+</div>
+
+<script>var mode = 'youtube'</script>
+<script src="nouislider.js"></script>
+<script src="common.js"></script>
+<script src="youtube.js"></script>
+
+
+<script>
+  var tag = document.createElement('script');
+
+  tag.src = "https://www.youtube.com/iframe_api";
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  function onYouTubeIframeAPIReady() {
+	player = new YT.Player('player', {
+	  videoId: gup('id'),
+	  events: {
+		'onReady': onPlayerReady,
+		'onStateChange': onPlayerStateChange
+	  }
+	});
+  }
+
+  function onPlayerReady(event) {
+    YTinit();	  
+  }
+
+  function onPlayerStateChange(event) {
+  }
+
+</script>
+
+
+</body>
+</html>
+
